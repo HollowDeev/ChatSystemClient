@@ -15,7 +15,7 @@ function page() {
 
     const handleButton = async (e) => {
         e.preventDefault()
-        const newSocket = await io.connect('http://localhost:3001')
+        const newSocket = await io.connect('https://chatsystemserver.onrender.com:3001')
         await newSocket.emit('set_username', name)
         setSocket(newSocket)
         localStorage.setItem('localName', name)
