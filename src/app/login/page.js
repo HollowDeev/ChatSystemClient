@@ -1,19 +1,29 @@
 'use client'
 
+import { SocketContext } from '@/context/socketContext'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import React, { useState } from 'react'
-import  io  from 'socket.io-client'
+import React, { useContext, useState } from 'react'
+import io from 'socket.io-client'
 
 function page() {
     const [name, setName] = useState('')
 
     const router = useRouter()
 
-    const handleButton = async () => {
-        const socket = await io.connect('http://localhost:3001')
+    const [socket, setSocket] = useContext(SocketContext)
+
+    const handleButton = async (e) => {
+        e.preventDefault()
+        const newSocket = await io.connect('http://localhost:3001')
+        await newSocket.emit('set_username', name)
+        setSocket(newSocket)
+        localStorage.setItem('localName', name)
         router.push(`chat/${name}`)
     }
+
+
+
 
     return (
         <main className='flex flex-col h-[100vh] items-center justify-center gap-10'>
@@ -23,16 +33,16 @@ function page() {
                     <span className='font-medium ml-4'>Seu Nome:</span>
                     <input onChange={(e) => setName(e.target.value)} type="text" id="nome" className='bg-black rounded-full px-2 py-2 placeholder:text-gray-700 outline-none border-2 border-transparent focus:border-purple-800' placeholder='Ex: Thauã Felipe' />
                     {
-                        name != '' ? 
-                        <button className='hover:bg-purple-100 hover:text-purple-950 font-semibold rounded-2xl py-2 bg-purple-900 htext-white transition-colors text-center' 
-                        onClick={() => handleButton()}>
-                            Entrar
-                        </button>
-                        :
-                        <button className=' font-semibold rounded-2xl py-2 bg-purple-950 text-white transition-colors text-center cursor-not-allowed' 
-                        >
-                            Entrar
-                        </button>
+                        name != '' ?
+                            <button className='hover:bg-purple-100 hover:text-purple-950 font-semibold rounded-2xl py-2 bg-purple-900 htext-white transition-colors text-center'
+                                onClick={(e) => handleButton(e)}>
+                                Entrar
+                            </button>
+                            :
+                            <button className=' font-semibold rounded-2xl py-2 bg-purple-950 text-white transition-colors text-center cursor-not-allowed'
+                            >
+                                Entrar
+                            </button>
                     }
                 </form>
             </div>
